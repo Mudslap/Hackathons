@@ -1,0 +1,985 @@
+<html>
+	<head>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Arvo&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<style>
+			*{
+				margin: 0;
+				font-family: 'Arvo', serif;
+			}
+			a{
+				text-decoration: none;
+				color: white;
+			}
+			
+			.glow {
+			    color: white;
+			    text-align: center;
+			    -webkit-animation: glow 1s ease-in-out infinite alternate;
+			    -moz-animation: glow 1s ease-in-out infinite alternate;
+			    animation: glow 1s ease-in-out infinite alternate;
+				text-shadow: 0 0 10px #CF9FFF, 0 0 20px #CF9FFF, 0 0 30px #CF9FFF, 0 0 40px #CF9FFF, 0 0 50px #CF9FFF, 0 0 60px #CF9FFF, 0 0 70px #CF9FFF;
+			}
+			
+/*			header*/
+			header{
+				width: 100%;
+				height: 10vh;
+				background-color: #CF9FFF;
+				position: fixed;
+				top: 0;
+				color: white;
+			}
+			.left{
+				float: left;	
+				margin: 20px;
+				margin-top: 25px;
+				color: #008080;
+			}
+			#links{
+				float: right;
+				position: relative;
+				top: 0%;
+			}
+			#links ul li{
+				float: left;
+				padding: 20px;
+				text-decoration: none;
+				margin-top: 15px;
+				margin-right: 10px;
+				font-size: 20px;
+				transition: 1s;
+			}
+			#links ul li:hover{
+				margin-top: 0px;
+				padding-bottom: 10px;
+				font-size: 25px;
+				color: #008080;
+				border-bottom: 1px solid #008080;
+				cursor: pointer;
+			}
+			ul{
+				list-style-type: none;
+			}
+			
+/*			canvas*/
+			#myCanvas{
+				position: relative;
+				left: 50%;
+				top: 55%;
+				transform: translate(-50%, -50%);
+				width: 700px;
+				height: 700px;
+				border: 3px solid #008080;
+			}
+			.hide{
+				display: none;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<img src="gameimg/teleporter.png" id="teleporter" class="hide">
+		<img src="gameimg/teleporter_h.png" id="teleporter_h" class="hide">
+		<img src="gameimg/B-1000.png" id="robot" class="hide">
+		<img src="gameimg/background2.png" id="galaxy" class="hide">
+		<canvas id="myCanvas"></canvas>
+		<script>
+			//start
+			var canvas = document.getElementById("myCanvas");
+			var ctx = canvas.getContext("2d");
+			
+			//image elements
+			var teleporter = document.getElementById("teleporter");
+			var t_h = document.getElementById("teleporter_h");
+			var robot = document.getElementById("robot");
+			var galaxy = document.getElementById("galaxy");
+			
+			//scale the canvas and covert it to pixels
+			let rect = canvas.getBoundingClientRect();
+			canvas.width = rect.width * devicePixelRatio;
+			canvas.height = rect.height * devicePixelRatio;
+			ctx.scale(devicePixelRatio, devicePixelRatio);
+			canvas.style.width = rect.width + 'px';
+			canvas.style.height = rect.height + 'px';
+			
+			//variables
+			var time = 0;
+			var character = {
+				x: 250,
+				y: 350,
+				r: 20,
+				lives: 3,
+				pressedKeys: {
+					left: false,
+					right: false,
+					up: false,
+					down: false,
+					enter: false,
+					r: false,
+					e: false,
+				}
+			}	
+			var levels = {
+				home: false,
+				one: false,
+				two: false,
+				three: false,
+				four: false,
+				five: false,
+				end: false,
+			}
+			var block = {
+				x: -100,
+				y: -100,
+				width: 90,
+				height: 90,
+			}
+			var block2 = {
+				x: -100,
+				y: -100,
+				width: 90,
+				height: 90,
+			}
+			var laser = {
+				x: 320,
+				y: 500,
+				width: 20,
+				height: 100,
+				y_vel: 0
+			}
+			var laser2 = {
+				x: 320,
+				y: 500,
+				width: 20,
+				height: 100,
+				y_vel: 0
+			}
+			var laser3 = {
+				x: 320,
+				y: 500,
+				width: 20,
+				height: 100,
+				y_vel: 0
+			}
+			
+			//draw
+			function drawCharacter(){
+				ctx.fillStyle = "black";
+				ctx.beginPath();
+				ctx.arc(character.x, character.y, character.r + 2, 0, 2 * Math.PI);
+				ctx.fill();
+				ctx.fillStyle = "#D2B48C";
+				ctx.beginPath();
+				ctx.arc(character.x, character.y, character.r, 0, 2 * Math.PI);
+				ctx.fill();
+			}
+			function background(){
+				ctx.drawImage(galaxy, 0, 0, canvas.width * 2, canvas.height);
+			}
+			
+			//create atrributes
+			var change_x = 0;
+			var change_y = 0;
+			function createBlock(){
+				ctx.fillStyle = "black";
+				ctx.fillRect(block.x + 5, block.y + 5, block.width, block.height);
+				ctx.fillStyle = "forestgreen";
+				ctx.fillRect(block.x + 10, block.y + 10, block.width-10, block.height-10);
+				
+				if(character.y + character.r >= block.y && character.y - character.r < block.y + block.height && character.x < block.x + block.width && character.x > block.x && character.pressedKeys.down){
+					block.y += 5;
+				}
+				if(character.y - character.r <= block.y + block.height && character.y + character.r > block.y && character.x < block.x + block.width && character.x > block.x && character.pressedKeys.up){
+					block.y -= 5;
+				}
+				if(character.y + character.r >= block.y && character.y - character.r < block.y + block.height && character.x - character.r < block.x + block.width && character.x + character.r > block.x && character.pressedKeys.left){
+					block.x -= 5;
+				}
+				if(character.y + character.r >= block.y && character.y - character.r < block.y + block.height && character.x - character.r < block.x + block.width && character.x + character.r > block.x && character.pressedKeys.right){
+					block.x += 5;
+				}
+			}
+			function createBlock2(){
+				ctx.fillStyle = "black";
+				ctx.fillRect(block2.x + 5, block2.y + 5, block2.width, block2.height);
+				ctx.fillStyle = "skyblue";
+				ctx.fillRect(block2.x + 10, block2.y + 10, block2.width-10, block2.height-10);
+				
+				if(character.y + character.r >= block2.y && character.y - character.r < block2.y + block2.height && character.x < block2.x + block2.width && character.x > block2.x && character.pressedKeys.down){
+					block2.y += 5;
+				}
+				if(character.y - character.r <= block2.y + block2.height && character.y + character.r > block2.y && character.x < block2.x + block2.width && character.x > block2.x && character.pressedKeys.up){
+					block2.y -= 5;
+				}
+				if(character.y + character.r >= block2.y && character.y - character.r < block2.y + block2.height && character.x - character.r < block2.x + block2.width && character.x + character.r > block2.x && character.pressedKeys.left){
+					block2.x -= 5;
+				}
+				if(character.y + character.r >= block2.y && character.y - character.r < block2.y + block2.height && character.x - character.r < block2.x + block2.width && character.x + character.r > block2.x && character.pressedKeys.right){
+					block2.x += 5;
+				}
+			}
+			function createLasers(facing, x, y){
+				if(facing == "up"){
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 5, y + 5 + 60, 90, 30);
+					ctx.fillStyle = "#808080";
+					ctx.fillRect(x + 10, y + 10 + 60, 80, 20);
+
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 20, y, 20, 65);
+					ctx.fillRect(x + 60, y, 20, 65);
+					
+					laser.width = 20;
+					laser.height = 100;
+					ctx.fillStyle = "red";
+					ctx.fillRect(laser.x, laser.y, laser.width, laser.height);
+					ctx.fillRect(laser.x + 40, laser.y, laser.width, laser.height);	
+				}
+				if(facing == "down"){
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 5, y + 5, 90, 30);
+					ctx.fillStyle = "#808080";
+					ctx.fillRect(x + 10, y + 10, 80, 20);
+
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 20, y + 30, 20, 65);
+					ctx.fillRect(x + 60, y + 30, 20, 65);
+					
+					laser.width = 20;
+					laser.height = 100;
+					ctx.fillStyle = "red";
+					ctx.fillRect(laser.x, laser.y, laser.width, laser.height);
+					ctx.fillRect(laser.x + 40, laser.y, laser.width, laser.height);	
+				}
+				if(facing == "left"){
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 65, y + 5, 30, 90);
+					ctx.fillStyle = "#808080";
+					ctx.fillRect(x + 70, y + 10, 20, 80);
+
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 5, y + 20, 65, 20);
+					ctx.fillRect(x + 5, y + 60, 65, 20);
+					
+					laser.width = 100;
+					laser.height = 20;
+					ctx.fillStyle = "red";
+					ctx.fillRect(laser.x, laser.y, laser.width, laser.height);
+					ctx.fillRect(laser.x, laser.y + 40, laser.width, laser.height);	
+					}	
+				if(facing == "right"){
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 5, y + 5, 30, 90);
+					ctx.fillStyle = "#808080";
+					ctx.fillRect(x + 10, y + 10, 20, 80);
+
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 30, y + 20, 65, 20);
+					ctx.fillRect(x + 30, y + 60, 65, 20);
+					
+					laser.width = 100;
+					laser.height = 20;	
+					laser2.width = 100;
+					laser2.height = 20;
+					laser3.width = 100;
+					laser3.height = 20;
+					if(levels.two == true && levels.one == true && levels.three == true && levels.four == true && levels.five == false){
+						ctx.fillStyle = "red";
+						ctx.fillRect(laser.x, laser.y, laser.width, laser.height);
+						ctx.fillRect(laser.x, laser.y + 40, laser.width, laser.height);
+						
+						ctx.fillStyle = "red";
+						ctx.fillRect(laser2.x, laser2.y, laser2.width, laser2.height);
+						ctx.fillRect(laser2.x, laser2.y + 40, laser2.width, laser2.height);
+						
+						ctx.fillStyle = "red";
+						ctx.fillRect(laser3.x, laser3.y, laser3.width, laser3.height);
+						ctx.fillRect(laser3.x, laser3.y + 40, laser3.width, laser3.height);
+					}else{
+						ctx.fillStyle = "red";
+						ctx.fillRect(laser.x, laser.y, laser.width, laser.height);
+						ctx.fillRect(laser.x, laser.y + 40, laser.width, laser.height);	
+					}
+				}		
+			}
+			function createDoor(angle, x, y){
+				if(angle == "h"){
+					ctx.fillStyle = "#474334";
+					ctx.fillRect(x , y - 10, 100, 10);
+				}
+				if(angle == "v"){
+					ctx.fillStyle = "#474334";
+					ctx.fillRect(x - 10, y, 10, 100);
+				}
+			}		
+			var pressed = 0;
+			function createButton(x, y){
+				if(character.x + character.r > x + 16 && character.x - character.r < x + 84 && character.y + character.r > y + 16 && character.y - character.r < y + 84 || block.x + block.width > x + 16 && block.x < x + 84 && block.y + block.height > y + 16 && block.y < y + 84){
+					pressed = 1;	
+				}
+				else{
+					pressed = 0;
+				}
+				
+				if(pressed == 0){
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 16, y + 16, 68, 68);
+					ctx.fillStyle = "green";
+					ctx.fillRect(x + 20, y + 20, 60, 60);
+				}
+				if(pressed == 1){
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 26 - 5, y + 26 - 5, 58, 58);
+					ctx.fillStyle = "green";
+					ctx.fillRect(x + 30 - 5, y + 30 - 5, 50, 50);
+				}
+			}	
+			var pressed2 = 0;
+			function createButton2(x, y){
+				if(character.x + character.r > x + 16 && character.x - character.r < x + 84 && character.y + character.r > y + 16 && character.y - character.r < y + 84 || block2.x + block2.width > x + 16 && block2.x < x + 84 && block2.y + block2.height > y + 16 && block2.y < y + 84){
+					pressed2 = 1;	
+				}
+				else{
+					pressed2 = 0;
+				}
+				
+				if(pressed2 == 0){
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 16, y + 16, 68, 68);
+					ctx.fillStyle = "lightblue";
+					ctx.fillRect(x + 20, y + 20, 60, 60);
+				}
+				if(pressed2 == 1){
+					ctx.fillStyle = "black";
+					ctx.fillRect(x + 26 - 5, y + 26 - 5, 58, 58);
+					ctx.fillStyle = "lightblue";
+					ctx.fillRect(x + 30 - 5, y + 30 - 5, 50, 50);
+				}
+			}
+			
+            //levels
+			function level1(x, y){
+				ctx.fillStyle = "#aaa9ad";
+				ctx.fillRect(x,y,300,300);
+				ctx.fillRect(x + 300, y + 100, 200, 100);
+				ctx.fillRect(x + 400, y + 200, 100, 200);
+				
+				ctx.drawImage(t_h, x + 100, y + 100);
+				
+				if(character.x - character.r < x){
+					character.x = x + character.r;
+				}
+				if(character.y - character.r < y){
+					character.y = y + character.r;
+				}
+				if(character.y + character.r > y + 300 && character.x < y + 300){
+					character.y = y + 300 - character.r;
+				}
+				if(character.x + character.r > x + 300 && character.y < y + 100){
+					character.x = x + 300 - character.r;
+				}
+				if(character.x + character.r > x + 300 && character.x < x + 400 && character.y < y + 300 && character.y > y + 200){
+					character.x = x + 300 - character.r;
+				}
+				if(character.x + character.r > x + 500){
+					character.x = x + 500 - character.r;
+				}
+				if(character.x - character.r < x + 400 && character.x > 400 && character.y > y + 200){
+					character.x = x + 400 + character.r;
+				}
+				if(character.x + character.r > x + 300 && character.y - character.r < y + 100){
+					character.y = y + 100 + character.r;
+				}
+				if(character.x + character.r > x + 300 && character.x < x + 400 && character.y + character.r > y + 200){
+					character.y = y + 200 - character.r;
+				}
+				ctx.drawImage(teleporter, x + 400, y + 300);
+				if(character.x - character.r > x + 400 && character.y > y + 300){
+					levels.one = true;
+					character.x = 450;
+					character.y = 5 + 50;
+					block.x = 300;
+					block.y = 200;
+				}
+			}
+			function level2(x,y){
+				ctx.fillStyle = "#aaa9ad";
+				ctx.fillRect(x,y,100,300);
+				ctx.fillRect(x - 200, y + 100, 200, 500);
+				ctx.fillRect(x - 100, y + 600, 100, 100);
+				
+				ctx.drawImage(t_h, x, y);
+				ctx.drawImage(teleporter, x-100,y+600);
+				
+				createButton(x - 200, y + 400, 0);
+				if(pressed == 0){
+					createDoor("h", x - 100, y + 600);	
+					if(character.y + character.r > y + 600){
+						character.y = y + 600 - character.r;
+					}
+				}
+				if(pressed == 1){
+					createDoor("v", x, y + 500);
+				}
+				
+				createBlock();
+				
+				if(character.x + character.r > x + 100){
+					character.x = x + 100 - character.r;
+				}
+				if(character.x - character.r < x - 200){
+					character.x = x - 200 + character.r;
+				}
+				if(character.y - character.r < y + 100 && character.x < x && character.x > x - 200){
+					character.y = y + 100 + character.r;
+				}
+				if(character.y - character.r < y + 100 && character.x < x && character.x > x - 200){
+					character.y = y + 100 + character.r;
+				}
+				if(character.x + character.r < x + 150 && character.x - character.r > x && character.y + character.r > y + 300){
+					character.y = y + 300 - character.r;
+				}
+				if(character.y + character.r > y + 600 && character.x + character.r < x - 100){
+					character.y = y + 600 - character.r;
+				}
+				if(character.x + character.r > x && character.y > y + 300){
+					character.x = x - character.r;
+				}
+				if (character.x - character.r < x && character.y > y && character.y < y - 100){
+					character.x = x - character.r;
+				}
+				if(character.y - character.r < y){
+					character.y = y + character.r;
+				}
+				
+				if(character.x - character.r > x - 100 && character.y > y + 600){
+					levels.two = true;
+					character.x = 150;
+					character.y = 250;
+					block.x = 200;
+					block.y = 300;
+					laser.x = 320;
+					laser.y = 500;
+				}
+			}
+			function level3(x,y){
+				ctx.fillStyle = "#aaa9ad";
+				ctx.fillRect(x, y, 100,200);
+				ctx.fillRect(x + 100, y + 100, 400, 100);
+				ctx.fillRect(x + 200, y + 200, 300, 100);
+				ctx.fillRect(x + 400, y, 100, 200); 
+				ctx.fillRect(x + 200, y + 300, 100, 100);
+				
+				ctx.drawImage(t_h, x, y);
+				ctx.drawImage(teleporter, x+400,y);
+				
+				createButton(x + 250, y + 100, 0);
+				if(pressed == 0){
+					createDoor("h", x + 400, y+100);	
+					if(character.x >= x + 400 && character.y - character.r <= y + 100){
+						character.y = y + 100 + character.r;
+					}
+				}
+				if(pressed == 1){
+					createDoor("v", x + 500, y+100);
+				}
+				
+				createBlock();
+				createLasers("up", x+200, y+300);
+				
+				laser.y -= 5;
+				if(laser.y < -2000){
+					laser.y = 500;
+				}
+				if(character.x - character.r < laser.x + 80 && character.x + character.r > laser.x && character.y - character.r < laser.y + laser.y + 100 && character.y + character.r > laser.y){
+					levels.one = false;
+					levels.two = false;
+					levels.three = false;
+					character.x = 250;
+					character.y = 350;
+					character.lives -= 1;
+				}
+				
+				if(character.x >= x + 400 && character.y <= y + 100){
+					levels.three = true;
+					character.x = 150;
+					character.y = 650;
+					console.log("teleport");
+					block.x = 250;
+					block.y = 150;
+					block2.x = 350;
+					block2.y = 350;
+					laser.x = 500;
+					laser.y = 320;
+				}
+				
+				if(character.x - character.r < x){
+					character.x = x + character.r;
+				}
+				if(character.y - character.r < y){
+					character.y = y + character.r;
+				}
+				if(character.y + character.r > y + 300){
+					character.y = y + 300 - character.r;
+				}
+				if(character.x + character.r > x + 500){
+					character.x = x + 500 - character.r;
+				}
+				if(character.y + character.r > y + 200 && character.y + character.r < y + 220 && character.x < x + 200){
+					character.y = y + 200 - character.r;
+				}
+				if(character.x - character.r < x + 200 && character.y > y + 200 && character.y < y + 300){
+					character.x = x+200+character.r;
+				}
+				if(character.x + character.r > x + 100 && character.y < y + 99 && character.x){
+					character.x = x + 100 - character.r;
+				}
+				if(character.x <= x + 400 && character.x >= x + 100 && character.y - character.r <= y + 100){
+					character.y = y + 100 + character.r;
+				}
+			}
+			function level4(x,y){
+				ctx.fillStyle = "#aaa9ad";
+				ctx.fillRect(x,y,200,300);
+				ctx.fillRect(x + 100, y + 100, 200, 300);
+				ctx.fillRect(x, y+ 300, 100, 200);
+				ctx.fillRect(x + 300, y + 100, 100, 100);
+				ctx.fillRect(x + 300, y, 100, 100);
+				
+				ctx.drawImage(t_h,x, y + 400);
+				ctx.drawImage(teleporter, x+300,y + 100);
+				
+				createButton(x + 200, y + 200, 0);
+				createButton2(x, y + 100, 0);
+				if(pressed == 0 && pressed2 == 0 || pressed == 0 && pressed2 == 1 || pressed == 1 && pressed2 == 0){
+					createDoor("v", x + 300, y+100);
+					if(character.x + character.r > x + 300 && character.y > y + 100 && character.y < y + 200){
+						character.x = x + 300 - character.r;
+					}
+				}
+				if(pressed == 1 && pressed2 == 1){
+					createDoor("h", x + 200, y+200);
+				}
+				
+				createBlock();
+				createBlock2();
+				
+				createLasers("left", x + 300, y);
+				
+				laser.x -= 5;
+				if(laser.x <= -2000){
+					laser.x = x + 300;
+				}
+				
+				if(laser.y < 2000){
+					laser.y = 100;
+				}
+				
+				if(character.x - character.r < laser.x + laser.width && character.x + character.r > laser.x && character.y - character.r < laser.y + laser.height + 60 && character.y + character.r > laser.y){
+					levels.one = false;
+					levels.two = false;
+					levels.three = false;
+					levels.four = false;
+					character.x = 250;
+					character.y = 350;
+					character.lives -= 1;
+				}
+				
+				if(character.x - character.r < x){
+					character.x = x + character.r;
+				}
+				if(character.y + character.r > y + 500){
+					character.y = y + 500 - character.r;
+				}
+				if(character.y - character.r < y){
+					character.y = y + character.r;
+				}
+				if(character.x + character.r > x + 400){
+					character.x = x + 400 - character.r;
+				}
+				if(character.x + character.r > x + 100 && character.y < y + 500 && character.y > y + 400){
+					character.x = x + 100 - character.r;
+				}
+				if(character.y + character.r > y + 400 && character.x < x + 300 && character.x > x + 100){
+					character.y = y + 400 - character.r;
+				}
+				if(character.x + character.r > x + 300 && character.y > y + 200 && character.y < y + 400){
+					character.x = x + 300 - character.r;
+				}
+				if(character.y + character.r > y + 200 && character.x > x + 300 && character.x < x + 400){
+					character.y = y + 200 - character.r;
+				}
+				if(character.x + character.r > x + 200 && character.y < y + 100 && character.y > y){
+					character.x = x + 200 - character.r;
+				}
+				if(character.y - character.r < y + 100 && character.x > x + 200 && character.x < x + 400){
+					character.y = y + 100 + character.r;
+				}	
+				
+				if(character.x - character.r > x + 300 && character.y > y + 100 && character.y < y + 200){
+					levels.four = true;
+					character.x = 200;
+					character.y = 550;
+					block.x = 300;
+					block.y = 450;
+					laser.x = 50;
+					laser.y = 220;
+					laser2.x = 50;
+					laser2.y = 320;
+					laser3.x = 50;
+					laser3.y = 420;
+				}
+			}
+			function level5(x,y){
+				ctx.fillStyle = "#aaa9ad";
+				ctx.fillRect(x,y,400,500);
+				ctx.fillRect(x - 100,y + 100,100, 100);
+				ctx.fillRect(x - 100,y + 300,100, 100);
+				ctx.fillRect(x - 100,y + 200,100, 100);
+				
+				ctx.drawImage(t_h,x, y + 400);
+				ctx.drawImage(teleporter, x, y);
+				
+				ctx.strokeStyle = "black";
+				ctx.lineWidth = 5;
+				ctx.beginPath();
+				ctx.moveTo(x, y + 100);
+				ctx.lineTo(x + 100, y + 100);
+				ctx.stroke();
+				
+				createButton(x + 300,y);
+				createBlock();
+				
+				if(pressed == 0){
+					createDoor("v", x + 100, y);	
+					if(character.y + character.r > y + 600){
+						character.y = y + 600 - character.r;
+					}
+					if(character.x - character.r < x + 100 && character.y > y && character.y < y + 100){
+						character.x = x + 100 + character.r;
+					}
+				}
+				if(pressed == 1){
+					createDoor("h", x + 100, y + 100);
+				}
+				
+				laser.x += 5;
+				laser2.x += 5;
+				laser3.x += 5;
+				
+				if(laser.x > 2000){
+					laser.x = 50;
+				}
+				if(laser2.x > 2500){
+					laser2.x = 50;
+				}
+				if(laser3.x > 3000){
+					laser3.x = 50;
+				}
+				
+				createLasers("right",x-100,y+100);
+				createLasers("right",x-100,y+200);
+				createLasers("right",x-100,y+300);
+				
+				if(character.x - character.r < laser.x + laser.width && character.x + character.r > laser.x && character.y - character.r < laser.y + laser.height + 60 && character.y + character.r > laser.y || character.x - character.r < laser2.x + laser2.width && character.x + character.r > laser2.x && character.y - character.r < laser2.y + laser2.height + 60 && character.y + character.r > laser2.y || character.x - character.r < laser3.x + laser3.width && character.x + character.r > laser3.x && character.y - character.r < laser3.y + laser3.height + 60 && character.y + character.r > laser3.y){
+					levels.one = false;
+					levels.two = false;
+					levels.three = false;
+					levels.four = false;
+					levels.five = false;
+					character.x = 250;
+					character.y = 350;
+					character.lives -= 1;
+				}
+				
+				if(character.x + character.r > x + 400){
+					character.x = x + 400 - character.r;
+				}
+				if(character.x - character.r < x){
+					character.x = x + character.r;
+				}
+				if(character.y - character.r < y){
+					character.y = y + character.r;
+				}
+				if(character.y + character.r > y + 500){
+					character.y = y + 500 - character.r;
+				}
+				if(character.y - character.r < y + 95 && character.y + character.r > 100 && character.x < x + 90 && character.x > x){
+					character.y = y + 95 + character.r;
+				}
+				
+				if(character.x < x + 100 && character.y < y + 100 && character.y > y){
+					levels.five = true;
+					levels.end = true;
+				}
+			}
+			
+			//functions for game
+			var decrease = false;
+			function restart(){
+				ctx.fillStyle = "#CF9FFF";
+				ctx.fillRect(500, 660, 210, 60);
+				ctx.textAlign = "left";
+				ctx.fillStyle = "white";
+				ctx.fillText("Press R to restart", 505, 692);
+				if(character.pressedKeys.r){
+					levels.one = false;
+					levels.two = false;
+					levels.three = false;
+					levels.four = false;
+					levels.five = false;
+					levels.home = true;	
+					character.lives = 0;
+					character.x = 250;
+					character.y = 350;
+					time = 0;
+				}
+			}
+			function restartGame(){
+				ctx.fillStyle = "#CF9FFF";
+				ctx.fillRect(500, 660, 210, 60);
+				ctx.textAlign = "left";
+				ctx.fillStyle = "white";
+				ctx.fillText("Press E to restart", 505, 692);
+				if(character.pressedKeys.e){
+					levels.home = false;
+					levels.one = false;
+					levels.two = false;
+					levels.three = false;
+					levels.four = false;
+					levels.five = false;
+					levels.end = false;
+					character.x = 250;
+					character.y = 350;
+					time = 0;
+					character.lives = 3;
+				}
+			}
+			function showLives(){
+				ctx.fillStyle = "red";
+				ctx.textAlign = "right";
+				ctx.font = "25px Arial";
+				ctx.fillText("Lives: " + character.lives, canvas.width - 10, 60);
+			}
+			
+			//loops
+			function update(progress){
+				if(levels.home == false){
+					ctx.fillStyle = "#CBC3E3";
+					ctx.fillRect(0, 0, canvas.width, canvas.height);
+					
+					ctx.fillStyle = "white";
+					ctx.textAlign = "center";
+					ctx.font = "70px Arial";
+					ctx.fillText("Abyss", 355, 355);
+					ctx.font = "25px Arial";
+					ctx.fillText("Press Enter to play", 355, 400);
+					
+					if(character.pressedKeys.enter){
+						levels.home = true;
+					}
+				}
+				if(levels.home == true){
+					if(levels.end == false){
+						background();
+						if(character.lives <= 0){
+							levels.end = true;
+						}
+						if(levels.one == false){
+							level1(100, 200);
+							ctx.fillStyle = "white";
+							ctx.textAlign = "center";
+							ctx.font = "25px Arial";
+							ctx.fillText("Welcome to Space young astronaut.", 355, 50);
+							ctx.fillText("My name's B-1000 and I will be", 355, 100);
+							ctx.fillText("helping you adventure through this Alien space base.", 355, 130);
+							ctx.fillText("We're counting on you to get the stolen data!", 355, 180);
+
+							ctx.textAlign = "left";
+							ctx.fillText("I've unlocked the next portal for you.", 10, 600);
+							ctx.fillText("QUICK! Use your WASD keys to enter the next portal before", 10, 650);
+							ctx.fillText("anyone sees you!", 10, 680);
+
+							ctx.drawImage(robot, 10, 10);
+}
+						if(levels.one == true && levels.two == false){
+							level2(420, 5);
+							ctx.fillStyle = "white";
+							ctx.textAlign = "left";
+							ctx.font = "25px Arial";
+							ctx.fillText("OH NO! There's a gate blocking", 10, 30);
+							ctx.fillText("the next portal!", 10, 60);
+
+							ctx.fillText("Push the large", 10, 130);
+							ctx.fillText("green box", 10, 160);
+							ctx.fillText("onto the green", 10, 190);
+							ctx.fillText("button to", 10, 220);
+							ctx.fillText("open the", 10, 250);
+							ctx.fillText("gate", 10, 280);
+
+							ctx.fillText("Be careful", 10, 340);
+							ctx.fillText("not to slide", 10, 370);
+							ctx.fillText("the boxes out of", 10, 400);
+							ctx.fillText("the gray base", 10, 430);
+							ctx.fillText("or else you will", 10, 460);
+							ctx.fillText("have to", 10, 490);
+							ctx.fillText("restart!", 10, 520);
+							
+							ctx.fillText("NOTE: Restarting", 10, 550);
+							ctx.fillText("means you will instant", 10, 580);
+							ctx.fillText("die", 10, 610);
+
+							ctx.drawImage(robot, 10, 620);
+						}
+						if(levels.two == true && levels.one == true && levels.three == false){
+							level3(100, 200);
+							ctx.fillStyle = "white";
+							ctx.textAlign = "left";
+							ctx.font = "25px Arial";
+							ctx.fillText("Those terrible Aliens.", 10, 30);
+							ctx.fillText("Looks like they added in lasers", 10, 60);
+							ctx.fillText("Dodge the lasers so that you don't lose a life", 10, 90);
+							ctx.drawImage(robot, 10, 100);
+}
+						if(levels.two == true && levels.one == true && levels.three == true && levels.four == false){
+							level4(200, 100);
+							ctx.fillStyle = "white";
+							ctx.textAlign = "left";
+							ctx.font = "25px Arial";
+							ctx.fillText("Looks like they're adding in even more boxes and buttons!", 10, 30);
+							ctx.fillText("Push the blocks to the corresponding colored button", 10, 60);
+							ctx.fillText("to open the gate", 10, 90);
+							ctx.drawImage(robot, 10, 120);
+}
+						if(levels.two == true && levels.one == true && levels.three == true && levels.four == true && levels.five == false){
+							level5(150, 100);
+							ctx.fillStyle = "white";
+							ctx.textAlign = "left";
+							ctx.font = "25px Arial";
+							ctx.fillText("I see the stolen data!", 10, 30);
+							ctx.fillText("This is the hardest part of the base yet", 10, 60);
+							ctx.fillText("so be careful! You got this!", 10, 90);
+						}
+
+						restart();
+						drawCharacter();
+						showLives();
+
+						if (character.pressedKeys.left) {
+							character.x -= progress/3;
+
+							ctx.fillStyle = "black";
+							ctx.fillRect(character.x - 26, character.y + character.r + 1, 37, 13);
+							ctx.fillRect(character.x - 26, character.y - character.r - 14, 37, 14);
+
+							ctx.fillStyle = "#D2B48C";
+							ctx.fillRect(character.x - 25, character.y + character.r + 2, 35, 10);
+							ctx.fillRect(character.x - 25, character.y - character.r - 12, 35, 10);
+						}
+						if (character.pressedKeys.right) {
+							character.x += progress/3;
+
+							ctx.fillStyle = "black";
+							ctx.fillRect(character.x - 6, character.y + character.r + 1, 37, 13);
+							ctx.fillRect(character.x - 6, character.y - character.r - 14, 37, 14);
+
+							ctx.fillStyle = "#D2B48C";
+							ctx.fillRect(character.x - 5, character.y + character.r + 2, 35, 10);
+							ctx.fillRect(character.x - 5, character.y - character.r - 12, 35, 10);
+}
+						if (character.pressedKeys.up) {
+							character.y -= progress/3;
+
+							ctx.fillStyle = "black";
+							ctx.fillRect(character.x + character.r , character.y - 26, 14, 37);
+							ctx.fillRect(character.x - character.r - 14, character.y - 26, 14, 37);
+
+							ctx.fillStyle = "#D2B48C";
+							ctx.fillRect(character.x + character.r + 2, character.y - 25, 10, 35);
+							ctx.fillRect(character.x - character.r - 12, character.y - 25, 10, 35);
+}
+						if (character.pressedKeys.down) {
+							character.y += progress/3;
+
+							ctx.fillStyle = "black";
+							ctx.fillRect(character.x + character.r, character.y - 6, 14, 37);
+							ctx.fillRect(character.x - character.r - 14, character.y - 6, 14, 37);
+
+							ctx.fillStyle = "#D2B48C";
+							ctx.fillRect(character.x + character.r + 2, character.y - 5, 10, 35);
+							ctx.fillRect(character.x - character.r - 12, character.y - 5, 10, 35);
+						}	
+					}
+					if(levels.end == true){
+						if(character.lives > 0){
+							background();
+							ctx.fillStyle = "white";
+							ctx.textAlign = "center";
+							ctx.font = "25px Arial";
+							ctx.fillText("Congratulations!", 350, 200);
+							ctx.fillText("You saved the stolen data!", 350, 230);
+							ctx.fillText("Lives left: " + character.lives, 350, 280);
+							restartGame();
+						}
+						if(character.lives <= 0){
+							background();
+							ctx.fillStyle = "white";
+							ctx.textAlign = "center";
+							ctx.font = "25px Arial";
+							ctx.fillText("You lost all of your lives!", 350, 200);
+							ctx.fillText("Better luck next time!", 350, 230);
+							ctx.fillText("Lives left: " + character.lives, 350, 280);
+							restartGame();
+						}
+					}
+				}
+			}
+			
+			function loop(timestamp) {
+			  var progress = timestamp - lastRender
+
+			  update(progress)
+
+			  lastRender = timestamp
+			  window.requestAnimationFrame(loop)
+			}
+			var lastRender = 0
+			window.requestAnimationFrame(loop)		
+			
+			//keycontrols
+			var keyMap = {
+			  68: 'right',
+			  65: 'left',
+			  87: 'up',
+			  83: 'down',
+			  32: 'jump',
+			  13: 'enter',
+			  82: 'r',
+			  69: 'e',
+			}
+			function keydown(event) {
+			  var key = keyMap[event.keyCode];
+			  character.pressedKeys[key] = true;
+			}
+			function keyup(event) {
+			  var key = keyMap[event.keyCode];
+			  character.pressedKeys[key] = false;
+			}
+			window.addEventListener("keydown", keydown, false)
+			window.addEventListener("keyup", keyup, false)
+		</script>
+		
+		<header>
+			<h1 class="left">Adventure Game</h1>
+			<div id="links">
+				<ul>
+					<li><a href="home.html">Home</a></li>
+					<li><a href="game_redo.html">Game</a></li>
+				</ul>
+			</div>
+		</header>
+	</body>
+</html>
