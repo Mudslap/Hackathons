@@ -1,0 +1,690 @@
+<html>
+	<head>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<style>
+			*{
+				margin: 0;
+				color: white;
+				font-family: 'Poppins', sans-serif;
+			}
+			body{
+				overflow-y: hidden;
+			}
+			
+			header{
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 10vh;
+				background-color: #e2adb4;
+			}
+			.logo{
+				width: 8vh;
+			}
+			.title h1{
+				position: absolute;
+				left: 70%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+			}
+			.title{
+				position: relative;
+				top: 50%;
+				transform: translate(0, -50%);
+				margin-left: 2%;
+				width: 300px;
+			}
+			.title:hover{
+				cursor: pointer;
+			}
+			ul{
+				position: absolute;
+				right: 0;
+				top: 50%;
+				transform: translate(0, -50%);
+			}
+			li{
+				float: left;
+				list-style: none;
+				margin: 20px;
+				color: #7e4eac;
+				font-size: 30px;
+				transition: 0.5s;
+			}
+			li:hover{
+				color: white;
+				cursor: pointer;
+			}
+			li i{
+				color: #7e4eac;
+				transition: 0.5s;
+			}
+			li i:hover{
+				color: white;
+				cursor: pointer;
+			}
+			
+			#game{
+				position: relative;
+				top: 0%;
+				left: 0%;
+				width: 100%;
+				height: 100vh;
+				background-color: #eac5ca;
+			}
+			#problem{
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+				width: 300px;
+				height: 270px;
+				border-bottom: 8px solid #7e4eac;
+			}
+			#num1{
+				position: absolute;
+				right: 0;
+				top: 0;
+				font-size: 90px;
+				color: #7e4eac;
+			}
+			#num2{
+				position: absolute;
+				right: 0;
+				bottom: 0;
+				font-size: 90px;
+				color: #7e4eac;
+			}
+			#symbol{
+				position: absolute;
+				left: 0;
+				bottom: 0;
+				font-size: 90px;
+				color: #7e4eac;
+			}
+			input{
+				position: absolute;
+				left: 50%;
+				top: 70%;
+				transform: translate(-50%, -50%);
+				width: 300px;
+				height: 70px;
+				border: none;
+				border-radius: 10px;
+				background-color: #e2adb4;
+				font-size: 30px;
+				text-align: center;
+				color: white;
+			}
+			#button{
+				position: absolute;
+				left: 50%;
+				top: 80%;
+				transform: translate(-50%, -50%);
+				width: 200px;
+				height: 60px;
+				border: none;
+				border-radius: 10px;
+				background-color: #e2adb4;
+				font-size: 30px;
+				text-align: center;
+				color: white;
+				background-color: #7e4eac;
+				opacity: 1;
+				transition: 0.5s;
+			}
+			#button:hover{
+				background-color: palevioletred;
+				cursor: pointer;
+			}
+			#correct{
+				position: absolute;
+				left: 50%;
+				top: 20%;
+				width: 90%;
+				transform: translate(-50%, 0);
+				text-align: center;
+			}
+			#points{
+				position: absolute;
+				top: 10%;
+				margin: 30px;
+				color: #7e4eac;
+			}
+			#timer{
+				position: absolute;
+				top: 15%;
+				margin: 30px;
+				color: #7e4eac;
+			}
+			
+			#keypad{
+				position: absolute;
+				bottom: 0%;
+				left: 0%;
+				padding: 20px;
+				background-color: #e2adb4; 
+				border-top-right-radius: 25px;
+				transition: 1s;
+				cursor: pointer;
+			}
+			#numberPad{
+				width: 300px;
+				height: 350px;
+				position: absolute;
+				left: 0%;
+				top: 100%;
+				background-color: #7e4eac;
+				border-top-right-radius: 25px;
+				transition: 1s;
+			}
+			#row h1{
+				margin-left: 25px;
+				padding: 10px;
+				float: left;
+				text-align: center;
+			}
+			#row h1:hover{
+				opacity: 0.5;
+				cursor: pointer;
+			}
+			#containers{
+				position: absolute;
+				width: 100%;
+				left: 50%;
+				top: 45%;
+				transform: translate(-50%, -50%);
+			}
+			
+			#resultTitle{
+				position: absolute;
+				top: 15%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				display: none;
+			}
+			#results{
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+				text-align: center;
+				display: none;
+			}
+			#results h1{
+				font-weight: 200;
+				color: #7e4eac;
+			}
+			#restart{
+				position: absolute;
+				left: 50%;
+				bottom: 3%;
+				transform: translate(-50%, 0);
+				text-align: center;
+				display: none;
+			}
+			#restart:hover{
+				cursor: pointer;
+			}
+			#spin{
+				font-size: 30px;
+				color: #7e4eac;
+				transition: 1s;
+			}
+			.fade-in {
+				opacity: 1;
+				animation-name: fadeInOpacity;
+				animation-iteration-count: 1;
+				animation-timing-function: ease-in;
+				animation-duration: 3s;
+			}
+			@keyframes fadeInOpacity {
+				0% {
+					opacity: 0;
+				}
+				100% {
+					opacity: 1;
+				}
+			}
+			
+			#settings{
+				position: absolute;
+				top: 10%;
+				right: 0;
+				padding: 20px;
+				background-color: #7e4eac; 
+				border-bottom-left-radius: 24px;
+				text-align: center;
+				display: none;
+				transition: 1s;
+			}
+			#settings button{
+				border: none;
+				cursor: pointer;
+			}
+			.selected{
+				color: #e2adb4;
+				background-color: white;
+			}
+			.notselected{
+				color: white;
+				background-color: #e2adb4;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="game">
+			<div id="problem">
+				<div id="num1">10</div>
+				<br>
+				<div id="num2">30</div>
+				<br>
+				<div id="symbol">-</div>	
+			</div>
+			<input type="text" placeholder="Write your Answer" id="input">
+			<button id="button" onclick="getAnswer()">Submit</button>
+			<div id="correct">
+				<h1 id="correctText"></h1>
+			</div>
+			<h1 id="points">Total: 0</h1>
+			<h1 id="timer">30</h1>
+			
+			<div id="settings">
+				<h1>Time</h1>
+				<button class="notselected" id="15">15</button>
+				<button class="selected" id="30">30</button>
+				<button class="notselected" id="45">45</button>
+				<button class="notselected" id="60">60</button>
+			</div>
+			
+			<h1 id="resultTitle">Here are your results...</h1>
+			<div id="results" class="fade-in">
+				<h2>total</h2>
+				<h1 id="totalInput">69</h1>
+				<h2>accuracy</h2>
+				<h1 id="accInput">90%</h1>
+				<h2>time</h2>
+				<h1 id="timeInput">30s</h1>
+			</div>
+			<div id="restart">
+				<h1 onclick="restarting()">Restart</h1>
+				<i class="fa fa-refresh fa-spin" id="spin" onclick="restarting()"></i>
+			</div>
+			<script>
+				var num1 = document.getElementById("num1");
+				var num2 = document.getElementById("num2");
+				var s = document.getElementById("symbol");
+				var input = document.getElementById("input");
+				var button = document.getElementById("button");
+				var correct = document.getElementById("correctText");
+				var timer = document.getElementById("timer");
+				var problem = document.getElementById("problem");
+				var totals = document.getElementById("points");
+				var results = document.getElementById("results");
+				var resultsTitle = document.getElementById("resultTitle");
+				var tt = document.getElementById("totalInput");
+				var at = document.getElementById("accInput");
+				var ti = document.getElementById("timeInput");
+				var restart = document.getElementById("restart");
+				var settingIcon = document.getElementById("settingIcon");
+				var settinginfo = document.getElementById("settings");
+				
+				var number1;
+				var number2;
+				var symbol;
+				var total = 0;
+				var totalProblems = 0;	
+				var timeLeft = 30;
+				var clickes = 0;
+				var started = true;
+				var accuracy = 0;
+				
+				var timeChosen = 30;
+				var fifteen = document.getElementById("15");
+				var thirty = document.getElementById("30");
+				var fourtyfive = document.getElementById("45");
+				var sixty = document.getElementById("60");
+				fifteen.onclick = function(){
+					timeChosen = 15;
+					timeLeft = timeChosen;
+					timer.innerHTML = timeChosen;
+					fifteen.classList.remove('notselected');
+					fifteen.classList.add('selected');
+					thirty.classList.remove('selected');
+					thirty.classList.add('notselected');
+					sixty.classList.remove('selected');
+					sixty.classList.add('notselected');
+					fourtyfive.classList.remove('selected');
+					fourtyfive.classList.add('notselected');
+				}
+				thirty.onclick = function(){
+					timeChosen = 30;
+					timeLeft = timeChosen;
+					timer.innerHTML = timeChosen;
+					fifteen.classList.remove('selected');
+					fifteen.classList.add('notselected');
+					thirty.classList.remove('notselected');
+					thirty.classList.add('selected');
+					sixty.classList.remove('selected');
+					sixty.classList.add('notselected');
+					fourtyfive.classList.remove('selected');
+					fourtyfive.classList.add('notselected');
+				}
+				fourtyfive.onclick = function(){
+					timeChosen = 45;
+					timeLeft = timeChosen;
+					timer.innerHTML = timeChosen;
+					fifteen.classList.remove('selected');
+					fifteen.classList.add('notselected');
+					thirty.classList.remove('selected');
+					thirty.classList.add('notselected');
+					sixty.classList.remove('selected');
+					sixty.classList.add('notselected');
+					fourtyfive.classList.remove('notselected');
+					fourtyfive.classList.add('selected');
+				}
+				sixty.onclick = function(){
+					timeChosen = 60;
+					timeLeft = timeChosen;
+					timer.innerHTML = timeChosen;
+					fifteen.classList.remove('selected');
+					fifteen.classList.add('notselected');
+					thirty.classList.remove('selected');
+					thirty.classList.add('notselected');
+					sixty.classList.remove('notselected');
+					sixty.classList.add('selected');
+					fourtyfive.classList.remove('selected');
+					fourtyfive.classList.add('notselected');
+				}
+				
+				var timerId;
+				function countdown(){
+					if (timeLeft <= 0) {
+						clearInterval(timerId);
+						problem.style.display = "none";
+						totals.style.display = "none";
+						input.style.display = "none";
+						button.style.display = "none";
+						correct.style.display = "none";
+						timer.style.display = "none";
+						
+						tt.innerHTML = total;
+						accuracy = Math.round(total/totalProblems * 100) + "%";
+						at.innerHTML = accuracy;
+						ti.innerHTML = timeChosen + "s";
+						results.style.display = "block";
+						resultsTitle.style.display = "block";
+						restart.style.display = "block";
+						timer.innerHTML = timeChosen;
+						totals.innerHTML = "Total: 0";
+						correct.innerHTML = "";
+						clickes = 0;
+						started = false;
+						settingClicks = 0;
+						settinginfo.style.display = "none";
+						settingIcon.style.display = "block";
+						settingIcon.style.marginTop = "7.5px";
+					} else {
+						timeLeft--;
+						timer.innerHTML = timeLeft;
+						problem.style.display = "block";
+						totals.style.display = "block";
+						input.style.display = "block";
+						button.style.display = "block";
+						correct.style.display = "block";
+						timer.style.display = "block";
+						
+						results.style.display = "none";
+						resultsTitle.style.display = "none";
+						restart.style.display = "none";
+						started = true;
+						settinginfo.style.display = "none";
+						settingIcon.style.display = "none";
+					}
+				}
+				function restarting(){
+					problem.style.display = "block";
+					totals.style.display = "block";
+					input.style.display = "block";
+					button.style.display = "block";
+					correct.style.display = "block";
+					timer.style.display = "block";
+						
+					results.style.display = "none";
+					resultsTitle.style.display = "none";
+					restart.style.display = "none";
+					started = true;
+					clickes = 0;
+					timeLeft = timeChosen;
+					total = 0;
+					accuracy = 0;
+					clearInterval(timerId);
+				}
+				
+				function createProblem(){
+					symbol = Math.floor(Math.random() * 3);
+					if(symbol == 0){
+						s.innerHTML = "+";
+					}
+					if(symbol == 1){
+						s.innerHTML = "-";
+					}
+					if(symbol == 2){
+						s.innerHTML = "×";
+						number1 = Math.floor(Math.random() * 99);
+						number2 = Math.floor(Math.random() * 10);
+					}
+					else{
+						number1 = Math.floor(Math.random() * 99);
+						number2 = Math.floor(Math.random() * 99);
+					}
+					num1.innerHTML = number1;
+					num2.innerHTML = number2;
+				}
+				function getAnswer(){
+					clickes += 1;
+					if(clickes == 1 && started == true){
+						timerId = setInterval(countdown, 1000);
+					}
+					if(symbol == 0){
+						if(input.value == number1 + number2){
+							console.log("correct");
+							correct.style.color = "#34b233";
+							correct.innerHTML = "You Got The Problem Correct!";
+							total += 1;
+						}
+						else{
+							correct.style.color = "red";
+							correct.innerHTML = "You Got The Problem Wrong!";
+							console.log("wrong");
+							
+						}
+					}
+					if(symbol == 1){
+						if(input.value == number1 - number2){
+							console.log("correct");
+							correct.style.color = "#34b233";
+							correct.innerHTML = "You Got The Problem Correct!";
+							total += 1;
+						}
+						else{
+							console.log("wrong");
+							correct.style.color = "red";
+							correct.innerHTML = "You Got The Problem Wrong!";
+						}
+					}
+					if(symbol == 2){
+						if(input.value == number1 * number2){
+							console.log("correct");
+							correct.style.color = "#34b233";
+							correct.innerHTML = "You Got The Problem Correct!";
+							total += 1;
+						}
+						else{
+							console.log("wrong");
+							correct.style.color = "red";
+							correct.innerHTML = "You Got The Problem Wrong!";
+						}
+					}
+					document.getElementById("points").innerHTML = "Total: " + total;
+					createProblem();
+					input.value = "";
+					totalProblems += 1;
+				}
+				
+				window.addEventListener("keyup", function(event) {
+					event.preventDefault();
+					if (event.keyCode === 13 && started == true) {
+						button.click();
+					}
+				});
+				window.onload = createProblem();
+			</script>
+			
+			<h1 id="keypad">Keypad <i class="fa fa-calculator"></i> <i class="fa fa-angle-up"></i></h1>
+			<div id="numberPad">
+				<div id="containers">
+					<div id="row">
+						<h1 id="1">1</h1>
+						<h1 id="2">2</h1>
+						<h1 id="3">3</h1>
+					</div>
+					<div id="row">
+						<h1 id="4">4</h1>
+						<h1 id="5">5</h1>
+						<h1 id="6">6</h1>
+					</div>
+					<div id="row">
+						<h1 id="7">7</h1>
+						<h1 id="8">8</h1>
+						<h1 id="9">9</h1>
+					</div>
+					<div id="row">
+						<h1 id="0">0</h1>
+						<h1 id="minus">-</h1>
+						<h1 id="clear"><i class="fa fa-trash"></i></h1>
+					</div>
+				</div>
+			</div>
+			<script>
+				var keypadTitle = document.getElementById("keypad");
+				var keypad = document.getElementById("numberPad");
+				var one = document.getElementById("1");
+				var two = document.getElementById("2");
+				var three = document.getElementById("3");
+				var four = document.getElementById("4");
+				var five = document.getElementById("5");
+				var six = document.getElementById("6");
+				var seven = document.getElementById("7");
+				var eight = document.getElementById("8");
+				var nine = document.getElementById("9");
+				var zero = document.getElementById("0");
+				var clear = document.getElementById("clear");
+				var minus = document.getElementById("minus");
+				var input = document.getElementById("input");
+				
+				one.onclick = function(){
+					input.value += "1";
+				}
+				two.onclick = function(){
+					input.value += "2";
+				}
+				three.onclick = function(){
+					input.value += "3";
+				}
+				four.onclick = function(){
+					input.value += "4";
+				}
+				five.onclick = function(){
+					input.value += "5";
+				}
+				six.onclick = function(){
+					input.value += "6";
+				}
+				seven.onclick = function(){
+					input.value += "7";
+				}
+				eight.onclick = function(){
+					input.value += "8";
+				}
+				nine.onclick = function(){
+					input.value += "9";
+				}
+				zero.onclick = function(){
+					input.value += "0";
+				}
+				minus.onclick = function(){
+					input.value += "-";
+				}
+				clear.onclick = function(){
+					input.value = "";
+				}
+				
+				var clicked = 0;
+				keypadTitle.onclick = function(){
+					clicked += 1;
+					if(clicked == 1){
+						keypadTitle.style.marginBottom = "300px";
+						keypad.style.top = "68%";
+						keypadTitle.innerHTML = "Keypad <i class='fa fa-calculator'></i> <i class='fa fa-angle-down'></i>"
+					}
+					if(clicked == 2){
+						keypadTitle.style.marginBottom = "0px";
+						keypad.style.top = "100%";
+						keypadTitle.innerHTML = "Keypad <i class='fa fa-calculator'></i> <i class='fa fa-angle-up'></i>"
+						clicked = 0;
+					}
+				}
+			
+			</script>
+		</div>
+		<header>
+			<div class="title" id="names">
+				<img src="imgs/logo.png" class="logo">
+				<h1>chickenmath</h1>
+			</div>
+			<ul>
+				<li><i class="fa fa-star"></i></li>
+				<li id="info"><i class="fa fa-info"></i></li>
+				<li><i class="fa fa-user-circle"></i></li>
+				<li id="setting"><i class="fa fa-cog" id="settingIcon"></i></li>
+			</ul>
+			<script>
+				var names = document.getElementById("names");
+				names.onclick = function (){
+					location.href = "home.html";
+				}
+				
+				var info = document.getElementById("info");
+				info.onclick = function (){
+					location.href = "about.html";
+				}
+				
+				var settings = document.getElementById("setting");
+				var settingIcon = document.getElementById("settingIcon");
+				var settinginfo = document.getElementById("settings");
+				var settingClicks = 0;
+				settings.onclick = function(){
+					console.log("clicked");
+					settingClicks += 1;
+					if(settingClicks == 1){
+						settinginfo.style.display = "block";
+						settingIcon.style.color = "white";
+						settingIcon.style.transform = "rotate(180deg)";
+					}
+					if(settingClicks == 2){
+						settinginfo.style.display = "none";
+						settingIcon.style.color = "#7e4eac";
+						settingClicks = 0;
+						settingIcon.style.transform = "rotate(-180deg)";
+					}
+				}
+				
+			</script>
+		</header>
+	</body>
+</html>
