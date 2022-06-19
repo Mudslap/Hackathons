@@ -1,0 +1,197 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}
+
+Login
+
+{% endblock %}
+
+{% block content %}
+
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <style>
+            body {
+              font-family: "Lato", sans-serif;
+            }
+
+            .sidebar {
+              height: 100%;
+              width: 0;
+              position: fixed;
+              z-index: 1;
+              top: 0;
+              left: 0;
+              background-color: white;
+              overflow-x: hidden;
+              transition: 0.5s;
+              padding-top: 60px;
+            }
+
+            .sidebar a {
+              padding: 8px 8px 8px 32px;
+              text-decoration: none;
+              font-size: 25px;
+              color: black;
+              display: block;
+              transition: 0.3s;
+            }
+
+            .sidebar a:hover {
+              color: #4d934d;
+            }
+
+            .sidebar .closebtn {
+              position: absolute;
+              top: 0;
+              right: 25px;
+              font-size: 36px;
+              margin-left: 50px;
+            }
+
+            .openbtn {
+              font-size: 20px;
+              cursor: pointer;
+              background-color: #4d934d;
+              color: black;
+              padding: 10px 15px;
+              border: none;
+              position: absolute;
+              left: 0;
+              top: 0;
+              transition: .5s;
+            }
+
+            .openbtn:hover {
+              color: #4d934d;
+              background-color: white;
+            }
+
+            #main {
+              transition: margin-left .5s;
+              padding: 16px;
+            }
+
+            #welcome{
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 50%;
+                height: 100vh;
+                background-color: #4d934d;
+            }
+
+            #form{
+                position: absolute;
+                width: 50%;
+                height: 100vh;
+                position: absolute;
+                right: 0%;
+                top: 0%;
+            }
+
+            #formtext{
+                position: relative;
+                top: 50%;
+                transform: translate(0,-50%);
+            }
+
+            .text{
+                text-align: center;
+                margin: 20px;
+            }
+
+            input{
+                border: 1px solid black;
+                padding: 10px;
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+
+            #register{
+                margin-top: 10px;
+                font-size: 15px;
+                background-color: white;
+                border: 1px solid black;
+                padding: 5px;
+                padding-left: 20px;
+                padding-right: 20px;
+                color: black;
+                transition: 1s;
+            }
+
+            #register:hover{
+                font-size: 17px;
+                color: white;
+                background-color: #4d934d;
+            }
+
+            #welcometext{
+                position: relative;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%,-50%);
+                text-align: center;
+                color: black;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="welcome">
+            <div id="welcometext">
+                <h1>Welcome to <br>Environest</h1>
+                <h2>Subscribe to our Youtube<br>for free advice and tips</h2>
+                <button id="register"><a href="#">Subscribe</a></button>
+            </div>
+        </div>
+
+        <div id="form">
+            <div id="formtext">
+                <h1 class="text">Login</h1>
+                {% for message in get_flashed_messages() %}
+                    <p class="text">{{message}}</p>
+                {% endfor %}
+
+                <form method="post" class="text">
+                    <input type="email" name="email" placeholder="Email" required>
+                    <br>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <br>
+                    <button type="submit" id="register">Login</button>
+                </form>
+                <p class="text">Don't have an account? Register <a href="/register">here</a></p>
+            </div>
+        </div>
+
+        <div id="mySidebar" class="sidebar">
+          <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+          <a href="/">Home</a>
+          <a href="#">Services</a>
+          <a href="#">Contact</a>
+        </div>
+
+        <div id="main">
+          <button class="openbtn" onclick="openNav()"><i class="fa fa-bars" aria-hidden="true"></i></button>
+        </div>
+
+        <script>
+        function openNav() {
+          document.getElementById("mySidebar").style.width = "250px";
+          document.getElementById("main").style.marginLeft = "250px";
+        }
+
+        function closeNav() {
+          document.getElementById("mySidebar").style.width = "0";
+          document.getElementById("main").style.marginLeft= "0";
+        }
+        </script>
+
+    </body>
+    </html>
+
+{% endblock %}
+
